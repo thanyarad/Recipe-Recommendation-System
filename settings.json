@@ -1,0 +1,11 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "Recipe",
+            "database": "${workspaceFolder:Recipe Recomendation}/instance/recipe.db"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
+}

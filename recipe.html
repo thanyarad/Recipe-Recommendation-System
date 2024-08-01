@@ -1,0 +1,89 @@
+{% extends 'base.html'%}
+{% block css %}
+
+{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <div class="text-center">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="mb-4" style="max-width: 150px;">
+    </div>
+    <h2 class="mb-4 text-center">Enter Ingredients</h2>
+    <form id="inputForm" method="post" action="{{ url_for('main.generate_new') }}">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" id="inputField" placeholder="Add an ingredient">
+            <button type="button" id="addIngredient" class="btn btn-secondary">Add</button>
+        </div>
+        <div id="tags" class="mt-3 d-flex flex-wrap"></div>
+        <input type="hidden" name="ingredients" id="hiddenIngredients">
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary">Generate Recipe</button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', (event) => {
+    const inputField = document.getElementById('inputField');
+    const addIngredientButton = document.getElementById('addIngredient');
+    const hiddenIngredients = document.getElementById('hiddenIngredients');
+    const tagsDiv = document.getElementById('tags');
+    let ingredients = [];
+
+    function updateHiddenIngredients() {
+        hiddenIngredients.value = ingredients.join(',');
+    }
+
+    function addIngredient(value) {
+        if (value && !ingredients.includes(value)) {
+            ingredients.push(value);
+            updateHiddenIngredients();
+            const span = document.createElement('span');
+            span.className = 'badge bg-secondary me-2 mb-2'; // Updated for Bootstrap 5
+            span.innerHTML = `${value} <button type="button" class="btn-close btn-close-white" aria-label="Close"></button>`;
+            span.querySelector('.btn-close').addEventListener('click', () => {
+                removeIngredient(value);
+            });
+            tagsDiv.appendChild(span);
+            inputField.value = '';
+        }
+    }
+
+    function removeIngredient(value) {
+        ingredients = ingredients.filter(ingredient => ingredient !== value);
+        updateHiddenIngredients();
+        const badges = Array.from(tagsDiv.getElementsByClassName('badge'));
+        badges.forEach(badge => {
+            if (badge.textContent.trim() === value) {
+                tagsDiv.removeChild(badge);
+            }
+        });
+    }
+
+    addIngredientButton.addEventListener('click', () => {
+        addIngredient(inputField.value.trim());
+    });
+
+    inputField.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey && !event.ctrlKey) {
+            event.preventDefault();
+            addIngredient(inputField.value.trim());
+        }
+    });
+
+    inputField.addEventListener('keydown', (event) => {
+        if (event.key === 'Backspace' && !inputField.value.trim() && ingredients.length > 0) {
+            event.preventDefault();
+            removeIngredient(ingredients[ingredients.length - 1]);
+        }
+    });
+
+    document.getElementById('inputForm').addEventListener('submit', (event) => {
+        if (ingredients.length === 0) {
+            event.preventDefault();
+            alert('Please add at least one ingredient.');
+        }
+    });
+});
+</script>
+
+{% endblock %}

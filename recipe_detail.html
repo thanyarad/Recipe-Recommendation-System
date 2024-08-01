@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block css %}
+<style>
+    .recipe-container {
+        margin-top: 20px;
+    }
+    .recipe-title {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+    .recipe-ingredients, .recipe-description {
+        margin-bottom: 20px;
+    }
+    .ingredient-item {
+        list-style-type: none;
+        margin: 5px 0;
+    }
+    .youtube-link {
+        margin-top: 20px;
+    }
+    .cool-button {
+        background: linear-gradient(45deg, #7593ed, #e52e71);
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 24px;
+        font-size: 16px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .cool-button span {
+        font-family: 'Arial', sans-serif;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .cool-button .emoji {
+        filter: hue-rotate(150deg) brightness(1.2);
+    }
+
+    .cool-button:hover {
+        transform: scale(1.05);
+        box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.3);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+
+<div class="container recipe-container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title recipe-title">{{ recipe.title }}</h2>
+                    <h4>Ingredients</h4>
+                    <ul class="recipe-ingredients">
+                        {% for ingredient in recipe.ingredients %}
+                            <li class="ingredient-item">{{ ingredient }}</li>
+                        {% endfor %}
+                    </ul>
+                    <h4>Description</h4>
+                    <p class="recipe-description">{{ recipe.description | safe }}</p>
+                    {% if recipe.youtube_link %}
+                        <div class="youtube-link">
+                            <a href="{{ recipe.youtube_link }}" class="btn btn-primary" target="_blank">Watch on YouTube</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="text-center">
+<a href="{{ url_for('main.generate_new') }}" class="cool-button text-center">
+    <span>
+        <span class="emoji">🔮</span> Create New <span class="emoji">✨</span>
+    </span>
+</a>
+    <br><br>
+</div>
+
+{% endblock %}

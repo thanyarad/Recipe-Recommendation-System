@@ -1,0 +1,156 @@
+{% extends 'base.html'%}
+{% block css %}
+<style>
+      .cool-button {
+            background: linear-gradient(45deg, #7593ed, #e52e71);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .cool-button span {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cool-button .emoji {
+            filter: hue-rotate(150deg) brightness(1.2);
+        }
+
+        .cool-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.3);
+        }
+    .card-link {
+    text-decoration: none;
+    color: inherit;
+    }
+
+    .card {
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .card-link:hover .card {
+        transform: scale(1.05);
+    }
+    body.fade-out {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+</style>
+{% endblock %}
+{% block content %}
+
+<div class="container text-center mt-5">
+
+<a href="{{ url_for('main.generate_new') }}" class="cool-button">
+    <span>
+        <span class="emoji">🔮</span> Create New <span class="emoji">✨</span>
+    </span>
+</a>
+
+
+{% if recipes %}
+<div class="container mt-5">
+    <div id="recipe-container" class="row row-cols-1 row-cols-md-4 g-4">
+        {% for t in recipes %}
+            <div class="col">
+                <a href="{{ url_for('main.recipe_detail', recipe_id=t.id) }}" class="card-link">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ t.title }}</h5>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+    <div id="loading" class="text-center" style="display: none;">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+
+</div>
+
+<script>
+let page = 1;
+let loading = false;
+let allLoaded = false;
+
+function loadMoreRecipes() {
+    if (loading || allLoaded) return;
+    loading = true;
+
+    document.getElementById('loading').style.display = 'block';
+
+    fetch(`/get-more-recipes?page=${page}`)
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('recipe-container');
+            if (data.length === 0) {
+                allLoaded = true;
+                document.getElementById('loading').style.display = 'none';
+                return;
+            }
+            data.forEach(recipe => {
+                const col = document.createElement('div');
+                col.className = 'col';
+                col.innerHTML = `
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">${recipe.title}</h5>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(col);
+            });
+            page++;
+            loading = false;
+            document.getElementById('loading').style.display = 'none';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            loading = false;
+            document.getElementById('loading').style.display = 'none';
+        });
+}
+document.querySelectorAll('.card-link').forEach(link => {
+    link.addEventListener('click', event => {
+        event.preventDefault();
+        const href = link.getAttribute('href');
+        document.body.classList.add('fade-out');
+        setTimeout(() => {
+            window.location.href = href;
+        }, 300);
+    });
+});
+
+window.addEventListener('scroll', () => {
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+        loadMoreRecipes();
+    }
+});
+
+window.addEventListener('scroll', () => {
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+        loadMoreRecipes();
+    }
+});
+
+</script>
+
+{% endblock %}
